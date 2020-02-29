@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package scoring;
+
+option go_package = "scoring";
+
+import "google/protobuf/timestamp.proto";
+
+service Scoring {
+    rpc GetCategoryScoresInPeriod(Request) returns (CategoryScoresResponse) {}
+    rpc GetTicketScoresInPeriod(Request) returns (TicketScoresResponse) {}
+    rpc GetOverallQualityScore(Request) returns (OverallQualityScoreResponse) {}
+    rpc GetOverPeriodScoreChange(Request) returns (OverPeriodScoreChangeResponse) {}
+} 
+
+message Request {
+    google.protobuf.Timestamp period_start = 1;
+    google.protobuf.Timestamp period_end = 2;
+}
+
+message Score {
+    double score = 1;
+    string score_labeled = 2;
+}
+
+message CategoryScoresResponse {
+    message ScoredDate {
+        google.protobuf.Timestamp date = 1;
+        Score score = 2;
+    }
+    
+    message CategoryScore {
+        string category = 1;
+        fixed64 ratings_count = 2;
+        repeated ScoredDate scored_dates = 3;
+        Score total_score = 4;
+    }
+
+    repeated CategoryScore category_scores = 1;    
+}
+
+message TicketScoresResponse {
+    message Category {
+        string category_name = 1;
+        Score score = 2;
+    }
+
+    message TicketScore {
+        fixed64 id = 1;
+        repeated Category categories = 2;
+    }
+
+    repeated TicketScore tickets = 1;
+}
+
+message OverallQualityScoreResponse {
+    Score score = 1;
+}
+
+message OverPeriodScoreChangeResponse {
+    Score current_period = 1;
+    Score previous_period = 2;
+    Score difference = 3;
+}
